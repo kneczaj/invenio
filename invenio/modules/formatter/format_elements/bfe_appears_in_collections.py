@@ -29,7 +29,7 @@ def format_element(bfo, separator="<br />"):
     @param separator: a separator between each collection link.
     """
 
-    coll_names = get_all_collections_of_a_record(bfo.recID)
+    coll_names = get_all_collections_of_a_record(int(bfo.recID))
     navtrails = [create_navtrail_links(coll_name, ln=bfo.lang) for coll_name in coll_names]
     navtrails = [navtrail for navtrail in navtrails if navtrail]
     navtrails.sort(lambda x, y: cmp(len(y), len(x)))
