@@ -432,6 +432,10 @@ var DEPOSIT_FORM = (function( $ ){
           return;
       }
 
+      var $element = $(selector);
+      var $info_alert = $element.find('.upload-info');
+      $info_alert.hide();
+
       var had_error = false;
       uploader = new plupload.Uploader({
           // General settings
@@ -534,6 +538,7 @@ var DEPOSIT_FORM = (function( $ ){
           dropbox_files = [];
           redirect();
           init_button_states();
+          showSuccessInfo('Files upload completed');
       }
 
       function upload_dropbox_file(i) {
@@ -750,6 +755,11 @@ var DEPOSIT_FORM = (function( $ ){
           return "an unknown error occurred";
       }
 
+      function showSuccessInfo(message) {
+        $info_alert.html(message);
+        $info_alert.show();
+      }
+
       uploader.bind('Error', function(up, err) {
           had_error = true;
           var message = error_message(err);
@@ -773,6 +783,7 @@ var DEPOSIT_FORM = (function( $ ){
           } else {
               if(!had_error) {
                   redirect();
+                  showSuccessInfo('Files upload completed');
               }
               init_button_states();
           }
