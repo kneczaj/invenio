@@ -571,7 +571,8 @@ distances from it.
         restarted_workflow = start_by_wid(wid=init_workflow.uuid,
                                           module_name="unit_tests")
 
-        self.assertFalse(init_workflow.uuid == restarted_workflow.uuid)
+        # We expect the same workflow to be re-started
+        self.assertTrue(init_workflow.uuid == restarted_workflow.uuid)
 
         restarted_objects = BibWorkflowObject.query.filter(
             BibWorkflowObject.id_workflow == restarted_workflow.uuid
@@ -621,9 +622,11 @@ class TestWorkflowTasks(WorkflowTasksTestCase):
 
     def test_logic_tasks(self):
         """Test that the logic tasks work correctly."""
-        from invenio.modules.workflows.models import BibWorkflowObject
+        from invenio.modules.workflows.models import (BibWorkflowObject,
+                                                      ObjectVersion)
         from invenio.modules.workflows.api import (start, continue_oid,
                                                    start_by_wid)
+        from invenio.modules.workflows.engine import WorkflowStatus
 
         test_object = BibWorkflowObject()
         test_object.set_data(0)
@@ -652,8 +655,6 @@ class TestWorkflowTasks(WorkflowTasksTestCase):
         self.assertEqual("gte9", test_object.get_extra_data()["test"])
         engine = continue_oid(test_object.id)
 
-        from invenio.modules.workflows.engine import WorkflowStatus
-        from invenio.modules.workflows.models import ObjectVersion
         self.assertEqual(ObjectVersion.FINAL, test_object.version)
         self.assertEqual(WorkflowStatus.COMPLETED, engine.status)
 
