@@ -23,7 +23,6 @@ from invenio.ext.assets import Bundle
 
 js = Bundle(
     'js/search/default_typeahead_configuration.js',
-    'js/search/facet.js',
     'js/search/init.js',
     filters="requirejs",
     output="search.js",
