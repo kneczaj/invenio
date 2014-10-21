@@ -627,7 +627,10 @@ define(function(require, exports, module) {
           }
 
           if($(item).parents('.' + empty_cssclass).length === 0) {
-              init_typeaheadjs(item, url, save_url, handle_selection);
+              if ($(item).attr('data-autocomplete') == 'default') {
+                init_typeahead_dataengine($(item), url);
+              }
+              connect_typeahead_events($(item), save_url, handle_selection);
           }
       });
   }
@@ -635,36 +638,47 @@ define(function(require, exports, module) {
   /**
    * Twitter typeahead.js support for autocompletion
    */
-  function init_typeaheadjs(item, url, save_url, handle_selection) {
-      var autocomplete_request = null;
+  function init_typeahead_dataengine($item, url) {
 
-      function source(query, process) {
-          if(autocomplete_request !== null){
-              autocomplete_request.abort();
-          }
-          $(item).addClass('ui-autocomplete-loading');
-          autocomplete_request = $.ajax({
-              type: 'GET',
-              url: url,
-              data: $.param({term: query, limit: $(item).data("autocomplete-limit")})
-          }).done(function(data) {
-              process(data);
-              $(item).removeClass('ui-autocomplete-loading');
-          }).fail(function(data) {
-              $(item).removeClass('ui-autocomplete-loading');
-          });
-      }
+      var engine = Bloodhound({
+          remote: url + $.param({
+              term: "%QUERY",
+              limit: $item.data("autocomplete-limit")
+          }),
+      });
 
-      $(item).typeahead({
+      engine.initialize();
+
+      $item.typeahead({
             minLength: 1
         },
         {
-            source: source,
+            source: engine.ttAdapter(),
             displayKey: 'value'
       });
+  }
 
-      $(item).on('typeahead:selected', function(e, datum, name){
+  /**
+   * Connect events of typeahead
+   * @param $item
+   * @param save_url
+   * @param handle_selection
+   */
+  function connect_typeahead_events($item, save_url, handle_selection) {
+      $item.on('typeahead:selected', function(e, datum, name){
           handle_selection(save_url, item, datum, name);
+      });
+
+      $item.on('typeahead:asyncrequest', function() {
+          this.addClass('ui-autocomplete-loading');
+      });
+
+      $item.on('typeahead:asynccancel', function() {
+          this.removeClass('ui-autocomplete-loading');
+      });
+
+      $item.on('typeahead:asyncreceive', function() {
+          this.removeClass('ui-autocomplete-loading');
       });
   }
 
@@ -770,7 +784,7 @@ define(function(require, exports, module) {
     this.on(this.attr.formSelector + ' .form-button', "click", this.onButtonClick);
     this.on('#submitForm input, #submitForm textarea, #submitForm select', "change", this.onFieldChanged);
 
-    init_autocomplete('[data-autocomplete="1"]', this.attr.save_url, this.attr.autocomplete_url);
+    init_autocomplete('[data-autocomplete!=""]', this.attr.save_url, this.attr.autocomplete_url);
     init_field_lists(this.attr.formSelector + ' .dynamic-field-list', this.attr.save_url, '[data-autocomplete="1"]', this.attr.autocomplete_url);
     init_ckeditor(this.attr.formSelector + ' textarea[data-ckeditor="1"]', this.attr.save_url);
     // Initialize rest of jquery plugins
