@@ -19,6 +19,7 @@
 
 define([
   'jasmine/spec/invenio.ext.jasmine/jquery_object_mock',
+  'jasmine-jquery',
 ], function(MockObject) {
 
   describe('Jasmine configuration', function() {

@@ -23,15 +23,8 @@ from invenio.ext.assets import Bundle
 
 jasmine_js = Bundle(
     # es5-shim is needed by PhantomJS
-    'vendors/es5-shim/es5-shim.js',
-    'vendors/es5-shim/es5-sham.js',
-    'vendors/jasmine/lib/jasmine-core/jasmine.js',
-    'vendors/jasmine/lib/jasmine-core/jasmine-html.js',
-    'js/jasmine/boot.js',
-    'vendors/jquery/dist/jquery.js',
-    'vendors/jasmine-jquery/lib/jasmine-jquery.js',
-    'vendors/jasmine-flight/lib/jasmine-flight.js',
-    'vendors/jasmine-ajax/lib/mock-ajax.js',
+    # 'vendors/es5-shim/es5-shim.js',
+    # 'vendors/es5-shim/es5-sham.js',
     output="jasmine.js",
     # Must be included prior to RequireJS
     weight=-1,
