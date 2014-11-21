@@ -17,7 +17,8 @@
 ## along with Invenio; if not, write to the Free Software Foundation, Inc.,
 ## 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
 
-from wtforms import FormField, FieldList, Field, Form
+from wtforms import FormField, FieldList, Field, Form, BooleanField, \
+    SubmitField
 
 CFG_GROUPS_META = {
     'classes': None,
@@ -63,6 +64,17 @@ class WebDepositForm(Form):
     """ Generic WebDeposit Form class """
 
     def __init__(self, *args, **kwargs):
+        # the default values of fields
+        # the draft values will be ignored for the fields with corresponding
+        # values here defined
+        base_values = dict()
+        # Make False a base value of BooleanFields
+        for field_tuple in self._unbound_fields:
+            if issubclass(field_tuple[1].field_class, BooleanField) and not \
+                    issubclass(field_tuple[1].field_class, SubmitField):
+                base_values[field_tuple[0]] = False
+        kwargs.update(base_values)
+
         super(WebDepositForm, self).__init__(*args, **kwargs)
         if not hasattr(self, 'template'):
             self.template = 'deposit/run.html'

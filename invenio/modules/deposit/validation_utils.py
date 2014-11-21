@@ -69,37 +69,35 @@ class ListLength(object):
 
 class RequiredIf(object):
 
-    """Require field if value of another field is set to a certain value."""
+    """Require field if value of another field passes test."""
 
-    def __init__(self, other_field_name, values, message=None):
+    def __init__(self, other_field_name, test, message=None):
         self.other_field_name = other_field_name
-        self.values = values
-        self.message = message
+        self.test = test
+        self.message = message if message else 'This field is required.'
 
     def __call__(self, form, field):
         try:
             from invenio.modules.deposit.fields.file_upload import FileUploadField
             other_field = getattr(form, self.other_field_name)
-            if isinstance(other_field, FileUploadField):
-                other_val = form.files
-            else:
-                other_val = other_field.data
-            for v in self.values:
-                # Check if field value is required
-                if (callable(v) and v(other_val)) or (other_val == v):
-                    # Field value is required - check the value
-                    if not field.data or \
-                            isinstance(field.data, six.string_types) \
-                            and not field.data.strip():
-                        if self.message is None:
-                            self.message = 'This field is required.'
-                        field.errors[:] = []
-                        raise StopValidation(self.message % {
-                            'other_field': other_field.label.text,
-                            'value': other_val
-                        })
         except AttributeError:
-            pass
+            return
+        if isinstance(other_field, FileUploadField):
+            other_val = form.files
+        else:
+            other_val = other_field.data
+        if not callable(self.test):
+            raise Exception('the test is not callable')
+        if not self.test(other_val):
+            return # value not required
+        data = field.data
+        if isinstance(field.data, six.string_types):
+            data = data.strip()
+        if not data:
+            raise StopValidation(self.message % {
+                'other_field': other_field.label.text,
+                'value': other_val
+            })
 
 
 class NotRequiredIf(RequiredIf):

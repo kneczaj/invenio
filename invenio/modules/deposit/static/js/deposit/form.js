@@ -109,8 +109,7 @@ define(function(require, exports, module) {
         });
       }
       var fields = $(selector).serializeArray(),
-          $pluploader = $(this.attr.pluploaderClass),
-          $checkboxes = $('input[type=checkbox]:not(:checked)');
+          $pluploader = $(this.attr.pluploaderClass);
 
       if ( $pluploader.length ) {
         // There is a pluploader instance in the form
@@ -120,14 +119,6 @@ define(function(require, exports, module) {
         });
       }
 
-      if ( $checkboxes.length ) {
-        fields = fields.concat(
-          $checkboxes.map(
-              function() {
-                return {name: this.name, value: ''}
-              }).get()
-        );
-      }
       return serialize_object(fields);
   }
 
@@ -600,13 +591,10 @@ define(function(require, exports, module) {
 
   this.onCheckboxChanged = function (event) {
     if(event.target.name.indexOf('__input__') == -1){
-      if ( $(event.target).prop("checked") ) {
-        save_field(this.attr.save_url, event.target.name, event.target.value);
-      } else {
-        save_field(this.attr.save_url, event.target.name, '');
-      }
+      var value = $(event.target).is(':checked') ? 'true' : 'false';
+      save_field(this.attr.save_url, event.target.name, value);
     }
-  }
+  };
 
   /**
    * Click form-button
